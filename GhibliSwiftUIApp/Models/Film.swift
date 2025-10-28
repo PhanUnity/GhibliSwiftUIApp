@@ -1,7 +1,7 @@
 import Foundation
 import Playgrounds
 
-struct Film: Codable, Identifiable {
+struct Film: Codable, Identifiable, Equatable {
     
     let id: String
     let title: String
