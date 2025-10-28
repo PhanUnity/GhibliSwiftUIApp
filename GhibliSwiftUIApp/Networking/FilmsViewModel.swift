@@ -49,10 +49,12 @@ class FilmsViewModel {
     }
     
     private func fetchFilms() async throws -> [Film] {
+        
+        // CREATE URL
         guard let url = URL(string: "https://ghibliapi.vercel.app/films") else {
             throw APIError.invalidURL
         }
-        
+        // SEND REQUEST
         do {
             let (data, response) = try await URLSession.shared.data(from: url)
             
@@ -60,9 +62,9 @@ class FilmsViewModel {
                   (200...299).contains(httpResponse.statusCode) else {
                 throw APIError.invalidResponse
             }
-            
+        // DECODE to JSON
             let films = try JSONDecoder().decode([Film].self, from: data)
-            // Bổ sung return để trả về kết quả
+            // add return value advoid error "missing in instant"...
             return films
         } catch let error as DecodingError {
             throw APIError.decoding(error)
