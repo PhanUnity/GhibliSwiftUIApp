@@ -2,6 +2,24 @@
 import Foundation
 
 struct MockGhibliService: GhibliService {
+    func fetchPerson(from URLString: String) async throws -> Person {
+        let data = try loadSampleData()
+        guard let person = data.people.first else {
+            throw APIError.notFound("No people found in sample data.")
+        }
+        return person
+    }
+    
+//    func fetchPerson(from url: URL) async throws -> Person {
+//        let data = try loadSampleData()
+//        guard let person = data.people.first else {
+//            throw APIError.notFound("No people found in sample data.")
+//        }
+//        return person
+//    }
+    
+    
+    //MARK: - Protocol conformance
     func fetchFilms() async throws -> [Film] {
         let data = try loadSampleData()
         return data.films
@@ -24,5 +42,14 @@ struct MockGhibliService: GhibliService {
             throw APIError.networkError(error)
         }
     }
+    
+    //MARK: - preview/testing only
+    
+    func fetchFilm() -> Film {
+        let data = try! loadSampleData()
+        return data.films.first!
+    }
+    
+    
 
 }
