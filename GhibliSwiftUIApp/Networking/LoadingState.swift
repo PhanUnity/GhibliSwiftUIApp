@@ -1,3 +1,4 @@
+
 import Foundation
 
 enum LoadingState<T: Equatable>: Equatable {

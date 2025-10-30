@@ -1,23 +1,19 @@
-//  Created by HP on 29/10/25.
+//
+//  DefaultGhibliService.swift
+//  GhibliSwiftUIApp
+//
+//  Created by Karin Prater on 10/6/25.
+//
 
 import Foundation
 
 struct DefaultGhibliService: GhibliService {
-    func fetchFilms() async throws -> [Film] {
-        let url = "https://ghibliapi.vercel.app/films"
-        return try await fetch(from: url, type: [Film].self)
-    }
     
-    func fetchPerson(from URLString: String) async throws -> Person {
-        return try await fetch(from: URLString, type: Person.self)
-    }
-    
-    func fetch<T: Decodable>(from URLString: String, type: T.Type) async throws -> T {
-        // CREATE URL
+    func fetch<T: Decodable>(from URLString: String, type: T.Type,) async throws -> T {
         guard let url = URL(string: URLString) else {
-            throw APIError.invalidURL
+            throw APIError.invalideURL
         }
-        // SEND REQUEST
+        
         do {
             let (data, response) = try await URLSession.shared.data(from: url)
             
@@ -25,16 +21,30 @@ struct DefaultGhibliService: GhibliService {
                   (200...299).contains(httpResponse.statusCode) else {
                 throw APIError.invalidResponse
             }
-            // DECODE to JSON
-            let films = try JSONDecoder().decode(T.self, from: data)
-            // add return value advoid error "missing in instant"...
-            return films
+            
+           return try JSONDecoder().decode(type, from: data)
         } catch let error as DecodingError {
             throw APIError.decoding(error)
         } catch let error as URLError {
             throw APIError.networkError(error)
         }
     }
-}
     
-
+    func fetchFilms() async throws -> [Film] {
+        let url = "https://ghibliapi.vercel.app/films"
+        return try await fetch(from: url, type: [Film].self)
+    }
+    
+    
+    func searchFilm(for searchTerm: String) async throws -> [Film] {
+        let allFilms = try await fetchFilms() //dont have a search endpoint otherwise would do this here
+        
+        return allFilms.filter { film in
+            film.title.localizedStandardContains(searchTerm)
+        }
+    }
+    
+    func fetchPerson(from URLString: String) async throws -> Person {
+        return try await fetch(from: URLString, type: Person.self)
+    }
+}
